@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 import {
   Theme,
@@ -17,6 +17,14 @@ interface GridConfig {
   rows: number;
   cols: number;
   numValues: number;
+}
+
+interface SavedConfiguration {
+  id: string;
+  timestamp: string;
+  gridConfig: GridConfig;
+  colors: { [key: string]: string };
+  gridData: string[][];
 }
 
 // Default neutral colors for the values
@@ -56,6 +64,65 @@ function App() {
   const [isGenerated, setIsGenerated] = useState(false);
   const [colors, setColors] = useState<{ [key: string]: string }>({});
   const [hoveredValue, setHoveredValue] = useState<string | null>(null);
+  const [savedConfigs, setSavedConfigs] = useState<SavedConfiguration[] | null>(
+    null
+  );
+
+  // Load saved configurations from localStorage on component mount
+  useEffect(() => {
+    const saved = localStorage.getItem("crochetPatternConfigs");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setSavedConfigs(parsed);
+      } catch (error) {
+        console.error("Error loading saved configurations:", error);
+      }
+    }
+  }, []);
+
+  // Save configurations to localStorage whenever savedConfigs changes
+  useEffect(() => {
+    if (savedConfigs) {
+      localStorage.setItem(
+        "crochetPatternConfigs",
+        JSON.stringify(savedConfigs)
+      );
+    }
+  }, [savedConfigs]);
+
+  const saveCurrentConfiguration = () => {
+    if (!isGenerated || gridData.length === 0) return;
+
+    const newConfig: SavedConfiguration = {
+      id: Date.now().toString(),
+      timestamp: new Date().toLocaleString(),
+      gridConfig: { ...gridConfig },
+      colors: { ...colors },
+      gridData: gridData.map((row) => [...row]),
+    };
+
+    setSavedConfigs((prev) => {
+      if (prev) {
+        const updated = [newConfig, ...prev.slice(0, 4)]; // Keep only 5 most recent
+        return updated;
+      }
+      return [newConfig];
+    });
+  };
+
+  const loadConfiguration = (config: SavedConfiguration) => {
+    setGridConfig(config.gridConfig);
+    setColors(config.colors);
+    setGridData(config.gridData);
+    setIsGenerated(true);
+  };
+
+  const deleteConfiguration = (id: string) => {
+    setSavedConfigs((prev) =>
+      prev !== null ? prev.filter((config) => config.id !== id) : null
+    );
+  };
 
   const generateGrid = () => {
     const { rows, cols, numValues } = gridConfig;
@@ -250,16 +317,20 @@ function App() {
   return (
     <Theme>
       <Container size="4" className="max-w-6xl mx-auto p-5">
-        <Heading size="8" mb="6" className="text-left sm:text-center">
+        <Heading
+          size="8"
+          mb="6"
+          className="text-left sm:text-center print:hidden"
+        >
           Pattern Mapper
         </Heading>
 
-        <Box className="bg-gray-50 p-6 rounded-lg mb-6">
+        <Box className="bg-gray-50 p-6 rounded-lg mb-6 print:!hidden">
           <Heading size="5" mb="4">
             Grid Configuration
           </Heading>
 
-          <Grid columns="3" gap="3" className="mb-6">
+          <Grid columns="3" gap="3" className="mb-3">
             <Box>
               <Text as="label" htmlFor="rows" size="2" weight="bold" mb="2">
                 Rows (N)
@@ -321,22 +392,78 @@ function App() {
             </Box>
           </Grid>
 
-          <Flex gap="3">
+          <Grid columns={{ initial: "2", sm: "3" }} gap="3" width="1fr">
             <Button onClick={generateGrid} size="3" color="purple">
               Generate Grid
             </Button>
             {isGenerated && (
-              <Button
-                onClick={printGrid}
-                size="3"
-                variant="outline"
-                color="purple"
-              >
-                Print Grid
-              </Button>
+              <>
+                <Button
+                  onClick={printGrid}
+                  size="3"
+                  variant="outline"
+                  color="purple"
+                >
+                  Print Grid
+                </Button>
+                <Button
+                  onClick={saveCurrentConfiguration}
+                  size="3"
+                  variant="outline"
+                  color="green"
+                  className="!col-span-2 sm:!col-span-1"
+                >
+                  Save Configuration
+                </Button>
+              </>
             )}
-          </Flex>
+          </Grid>
         </Box>
+
+        {/* Saved Configurations Section */}
+        {savedConfigs && savedConfigs.length > 0 && (
+          <>
+            <Separator size="4" className="mb-6 print:hidden" />
+            <Box className="bg-gray-50 p-6 rounded-lg mb-6 print:!hidden">
+              <Heading size="5" mb="4">
+                Recent Saves
+              </Heading>
+              <Flex direction="column" gap="3">
+                {savedConfigs.map((config) => (
+                  <Flex
+                    key={config.id}
+                    justify="between"
+                    align="center"
+                    className="bg-white p-4 rounded-lg border border-gray-200 hover:border-purple-300 transition-colors cursor-pointer"
+                    onClick={() => loadConfiguration(config)}
+                  >
+                    <Box>
+                      <Text size="3" weight="bold" className="text-gray-900">
+                        {config.timestamp}
+                      </Text>
+                      <Text size="2" color="gray" ml="2">
+                        {config.gridConfig.rows} × {config.gridConfig.cols} |{" "}
+                        {config.gridConfig.numValues} colors
+                      </Text>
+                    </Box>
+                    <Button
+                      size="2"
+                      variant="ghost"
+                      color="red"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteConfiguration(config.id);
+                      }}
+                      className="hover:bg-red-50"
+                    >
+                      Delete
+                    </Button>
+                  </Flex>
+                ))}
+              </Flex>
+            </Box>
+          </>
+        )}
 
         <Separator size="4" className="mb-6" />
 
@@ -406,7 +533,7 @@ function App() {
 
             <Box className="overflow-x-auto print:overflow-visible">
               <div
-                className="grid gap-3 p-4 border-1 min-w-min w-fit border-gray-800 box-border bg-white print:border-black rounded-lg"
+                className="grid gap-3 p-4 border-1 min-w-min w-fit border-gray-800 box-border bg-white print:border-black print:gap-0 rounded-lg"
                 style={{
                   gridTemplateColumns: `repeat(${gridConfig.cols}, minmax(32px, 1fr))`,
                   gridTemplateRows: `repeat(${gridConfig.rows}, minmax(32px, 1fr))`,
@@ -418,7 +545,7 @@ function App() {
                       justify="center"
                       align="center"
                       key={`${rowIndex}-${colIndex}`}
-                      className="aspect-square min-w-8 text-sm font-bold font-mono rounded-full print:w-6 print:h-6 print:text-xs print:border-black print:text-black uppercase cursor-pointer"
+                      className="aspect-square min-w-8 text-sm font-bold font-mono rounded-full print:rounded-none print:border-black print:border-1  print:text-black uppercase cursor-pointer"
                       style={getCellStyle(cell)}
                       onMouseEnter={() => setHoveredValue(cell)}
                       onMouseLeave={() => setHoveredValue(null)}
