@@ -88,18 +88,110 @@ function App() {
       allValues.push(...Array(count).fill(value));
     });
 
-    // Shuffle the array for randomization
-    for (let i = allValues.length - 1; i > 0; i--) {
+    // Initialize empty grid
+    const grid: string[][] = Array(rows)
+      .fill(null)
+      .map(() => Array(cols).fill(""));
+
+    // Helper function to check if a value can be placed at a position
+    const canPlaceValue = (
+      row: number,
+      col: number,
+      value: string
+    ): boolean => {
+      // Check all 8 adjacent cells (including diagonals)
+      const directions = [
+        [-1, -1],
+        [-1, 0],
+        [-1, 1],
+        [0, -1],
+        [0, 1],
+        [1, -1],
+        [1, 0],
+        [1, 1],
+      ];
+
+      for (const [dr, dc] of directions) {
+        const newRow = row + dr;
+        const newCol = col + dc;
+
+        if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols) {
+          if (grid[newRow][newCol] === value) {
+            return false;
+          }
+        }
+      }
+
+      return true;
+    };
+
+    // Helper function to get available positions for a value
+    const getAvailablePositions = (value: string): [number, number][] => {
+      const positions: [number, number][] = [];
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          if (grid[row][col] === "" && canPlaceValue(row, col, value)) {
+            positions.push([row, col]);
+          }
+        }
+      }
+      return positions;
+    };
+
+    // Place values with improved distribution
+    const shuffledValues = [...allValues];
+    for (let i = shuffledValues.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [allValues[i], allValues[j]] = [allValues[j], allValues[i]];
+      [shuffledValues[i], shuffledValues[j]] = [
+        shuffledValues[j],
+        shuffledValues[i],
+      ];
     }
 
-    // Create 2D grid
-    const grid: string[][] = [];
-    for (let i = 0; i < rows; i++) {
-      grid[i] = [];
-      for (let j = 0; j < cols; j++) {
-        grid[i][j] = allValues[i * cols + j];
+    // Try to place each value
+    for (const value of shuffledValues) {
+      let attempts = 0;
+      const maxAttempts = 100;
+      let placed = false;
+
+      while (attempts < maxAttempts && !placed) {
+        const availablePositions = getAvailablePositions(value);
+
+        if (availablePositions.length === 0) {
+          // If no valid positions, find any empty position
+          for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+              if (grid[row][col] === "") {
+                grid[row][col] = value;
+                placed = true;
+                break;
+              }
+            }
+            if (placed) break;
+          }
+        } else {
+          // Choose a random available position
+          const randomIndex = Math.floor(
+            Math.random() * availablePositions.length
+          );
+          const [row, col] = availablePositions[randomIndex];
+          grid[row][col] = value;
+          placed = true;
+        }
+
+        attempts++;
+      }
+
+      // If still not placed, find any empty position
+      if (!placed) {
+        for (let row = 0; row < rows; row++) {
+          for (let col = 0; col < cols; col++) {
+            if (grid[row][col] === "") {
+              grid[row][col] = value;
+              break;
+            }
+          }
+        }
       }
     }
 
