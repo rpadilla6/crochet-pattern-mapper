@@ -57,8 +57,8 @@ const getDefaultColors = (numValues: number) => {
 
 function App() {
   const [gridConfig, setGridConfig] = useState<GridConfig>({
-    rows: 19,
-    cols: 24,
+    rows: 24,
+    cols: 19,
     numValues: 9,
   });
   const [gridData, setGridData] = useState<string[][]>([]);
@@ -568,10 +568,10 @@ function App() {
 
             <Box className="overflow-x-auto print:overflow-visible">
               <div
-                className="grid gap-3 p-4 border-1 min-w-min w-fit border-gray-800 box-border bg-white print:border-black print:gap-0 rounded-lg"
+                className="grid gap-1 sm:gap-3 p-2 sm:p-4 border-1 min-w-min w-fit border-gray-800 box-border bg-white print:border-black print:gap-0 rounded-lg"
                 style={{
-                  gridTemplateColumns: `repeat(${gridConfig.cols}, minmax(32px, 1fr))`,
-                  gridTemplateRows: `repeat(${gridConfig.rows}, minmax(32px, 1fr))`,
+                  gridTemplateColumns: `repeat(${gridConfig.cols}, minmax(14px, 1fr))`,
+                  gridTemplateRows: `repeat(${gridConfig.rows}, minmax(14px, 1fr))`,
                 }}
               >
                 {gridData.map((row, rowIndex) =>
@@ -580,7 +580,7 @@ function App() {
                       justify="center"
                       align="center"
                       key={`${rowIndex}-${colIndex}`}
-                      className="aspect-square min-w-8 text-sm font-bold font-mono rounded-full print:rounded-none print:border-black print:border-1  print:text-black uppercase cursor-pointer"
+                      className="aspect-square min-w-3 sm:min-w-4 md:min-w-8 text-xs leading-0 sm:text-sm font-bold font-mono rounded-sm sm:rounded-full print:rounded-none print:border-black print:border-1  print:text-black uppercase cursor-pointer"
                       style={getCellStyle(cell)}
                       onMouseEnter={() => setHoveredValue(cell)}
                       onMouseLeave={() => setHoveredValue(null)}
