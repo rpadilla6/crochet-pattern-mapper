@@ -595,8 +595,8 @@ function App() {
         )}
         <div className="mt-6 w-full flex justify-center">
           <Text size="1" color="gray">
-            Made with love for my wife Danielle, and all the other Crocheters
-            out there!
+            Made with love for my wife Danielle, and all the other crocheters
+            and crafters out there!
           </Text>
         </div>
       </Container>
