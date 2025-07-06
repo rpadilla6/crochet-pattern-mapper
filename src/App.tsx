@@ -198,27 +198,28 @@ function App() {
               {String.fromCharCode(96 + gridConfig.numValues)})
             </Text>
 
-            <Grid
-              columns={gridConfig.cols.toString()}
-              rows={gridConfig.rows.toString()}
-              gap="2"
-              p="2"
-              minWidth="min-content"
-              className="border-1 border-gray-800 box-border bg-white print:border-black rounded-lg"
-            >
-              {gridData.map((row, rowIndex) =>
-                row.map((cell, colIndex) => (
-                  <Flex
-                    justify="center"
-                    align="center"
-                    key={`${rowIndex}-${colIndex}`}
-                    className="aspect-square min-w-8 box-border border-1 border-gray-800 text-sm font-bold bg-white text-gray-800 font-mono rounded-lg print:w-6 print:h-6 print:text-xs print:border-black print:text-black"
-                  >
-                    {cell}
-                  </Flex>
-                ))
-              )}
-            </Grid>
+            <Box className="overflow-x-auto print:overflow-visible">
+              <div
+                className="grid gap-2 p-2 border-1 min-w-min w-fit border-gray-800 box-border bg-white print:border-black rounded-lg"
+                style={{
+                  gridTemplateColumns: `repeat(${gridConfig.cols}, minmax(32px, 1fr))`,
+                  gridTemplateRows: `repeat(${gridConfig.rows}, minmax(32px, 1fr))`,
+                }}
+              >
+                {gridData.map((row, rowIndex) =>
+                  row.map((cell, colIndex) => (
+                    <Flex
+                      justify="center"
+                      align="center"
+                      key={`${rowIndex}-${colIndex}`}
+                      className="aspect-square min-w-8 box-border border-1 border-gray-800 text-sm font-bold bg-white text-gray-800 font-mono rounded-lg print:w-6 print:h-6 print:text-xs print:border-black print:text-black uppercase"
+                    >
+                      {cell}
+                    </Flex>
+                  ))
+                )}
+              </div>
+            </Box>
           </Box>
         )}
       </Container>
