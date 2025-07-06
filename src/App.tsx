@@ -322,11 +322,7 @@ function App() {
           </Grid>
 
           <Flex gap="3">
-            <Button
-              onClick={generateGrid}
-              size="3"
-              className="bg-blue-600 hover:bg-blue-700"
-            >
+            <Button onClick={generateGrid} size="3" color="purple">
               Generate Grid
             </Button>
             {isGenerated && (
@@ -334,7 +330,7 @@ function App() {
                 onClick={printGrid}
                 size="3"
                 variant="outline"
-                className="border-gray-300 hover:bg-gray-50"
+                color="purple"
               >
                 Print Grid
               </Button>
@@ -384,20 +380,20 @@ function App() {
                         <Flex
                           justify="center"
                           align="center"
-                          className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded font-bold text-sm print:w-4 print:h-4 print:text-xs pointer-events-none"
+                          className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded font-bold text-sm print:w-4 print:h-4 print:text-xs pointer-events-none uppercase"
                           style={{
                             backgroundColor: colors[value] || "#ccc",
                             color: colors[value] ? "#fff" : "#000",
                           }}
                         >
-                          {value.toUpperCase()}
+                          {value}
                         </Flex>
                         <input
                           type="color"
                           value={colors[value] || "#ccc"}
                           onChange={(e) => updateColor(value, e.target.value)}
                           className="absolute top-0 left-0 w-6 h-6 rounded cursor-pointer print:hidden opacity-0"
-                          title={`Change color for ${value.toUpperCase()}`}
+                          title={`Change color for ${value}`}
                         />
                       </div>
                       <Text size="2" weight="bold" className="print:text-xs">
@@ -422,7 +418,7 @@ function App() {
                       justify="center"
                       align="center"
                       key={`${rowIndex}-${colIndex}`}
-                      className="aspect-square min-w-8 text-sm font-bold font-mono rounded-xl print:w-6 print:h-6 print:text-xs print:border-black print:text-black uppercase cursor-pointer"
+                      className="aspect-square min-w-8 text-sm font-bold font-mono rounded-full print:w-6 print:h-6 print:text-xs print:border-black print:text-black uppercase cursor-pointer"
                       style={getCellStyle(cell)}
                       onMouseEnter={() => setHoveredValue(cell)}
                       onMouseLeave={() => setHoveredValue(null)}
@@ -435,6 +431,12 @@ function App() {
             </Box>
           </Box>
         )}
+        <div className="mt-6 w-full flex justify-center">
+          <Text size="1" color="gray">
+            Made with love for my wife Danielle, and all the other Crocheters
+            out there!
+          </Text>
+        </div>
       </Container>
     </Theme>
   );
