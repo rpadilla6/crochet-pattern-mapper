@@ -11,6 +11,7 @@ import {
   Box,
   Flex,
   Grid,
+  Checkbox,
 } from "@radix-ui/themes";
 
 interface GridConfig {
@@ -67,6 +68,7 @@ function App() {
   const [savedConfigs, setSavedConfigs] = useState<SavedConfiguration[] | null>(
     null
   );
+  const [isSequential, setIsSequential] = useState(false);
 
   // Load saved configurations from localStorage on component mount
   useEffect(() => {
@@ -144,6 +146,26 @@ function App() {
       setColors(newColors);
     }
 
+    if (isSequential) {
+      // Sequential mode: fill row by row with values in order
+      const grid: string[][] = Array(rows)
+        .fill(null)
+        .map(() => Array(cols).fill(""));
+
+      let valueIndex = 0;
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          grid[row][col] = values[valueIndex % numValues];
+          valueIndex++;
+        }
+      }
+
+      setGridData(grid);
+      setIsGenerated(true);
+      return;
+    }
+
+    // Random mode (existing logic)
     // Calculate distribution
     const baseCount = Math.floor(totalCells / numValues);
     const remainder = totalCells % numValues;
@@ -327,7 +349,20 @@ function App() {
 
         <Box className="bg-gray-50 p-6 rounded-lg mb-6 print:!hidden">
           <Heading size="5" mb="4">
-            Grid Configuration
+            <Flex align="center" gap="3" className="mb-3">
+              Grid Configuration
+              <Checkbox
+                id="sequential"
+                checked={isSequential}
+                onCheckedChange={(checked) =>
+                  setIsSequential(checked as boolean)
+                }
+                ml="2"
+              />
+              <Text as="label" htmlFor="sequential" size="2" weight="bold">
+                Sequential Ordering
+              </Text>
+            </Flex>
           </Heading>
 
           <Grid columns="3" gap="3" className="mb-3">
