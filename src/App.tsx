@@ -72,6 +72,17 @@ function App() {
     window.print();
   };
 
+  // Calculate count of each value in the grid
+  const getValueCounts = () => {
+    const counts: { [key: string]: number } = {};
+    gridData.forEach((row) => {
+      row.forEach((cell) => {
+        counts[cell] = (counts[cell] || 0) + 1;
+      });
+    });
+    return counts;
+  };
+
   return (
     <Theme>
       <Container size="4" className="max-w-6xl mx-auto p-5">
@@ -197,6 +208,32 @@ function App() {
               {gridConfig.numValues} (a-
               {String.fromCharCode(96 + gridConfig.numValues)})
             </Text>
+
+            {/* Value Legend */}
+            <Box className="mb-6 mt-2 print:mb-4">
+              <Heading size="4" className="mb-3 print:text-sm">
+                Distribution
+              </Heading>
+              <Flex wrap="wrap" gap="3" className="print:gap-2">
+                {Object.entries(getValueCounts())
+                  .sort(([a], [b]) => b.localeCompare(a))
+                  .map(([value, count]) => (
+                    <Flex
+                      key={value}
+                      align="center"
+                      gap="2"
+                      className="bg-gray-100 px-3 py-2 rounded-lg print:bg-white print:border print:border-gray-300"
+                    >
+                      <Box className="w-6 h-6 flex items-center justify-center bg-white border border-gray-300 rounded font-bold text-sm print:w-4 print:h-4 print:text-xs">
+                        {value.toUpperCase()}
+                      </Box>
+                      <Text size="2" weight="bold" className="print:text-xs">
+                        {count}
+                      </Text>
+                    </Flex>
+                  ))}
+              </Flex>
+            </Box>
 
             <Box className="overflow-x-auto print:overflow-visible">
               <div
