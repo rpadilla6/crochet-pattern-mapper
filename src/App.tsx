@@ -19,6 +19,33 @@ interface GridConfig {
   numValues: number;
 }
 
+// Default neutral colors for the values
+const getDefaultColors = (numValues: number) => {
+  const neutralColors = [
+    "#8B7355", // Brown
+    "#696969", // Dim Gray
+    "#556B2F", // Dark Olive Green
+    "#2F4F4F", // Dark Slate Gray
+    "#654321", // Dark Brown
+    "#708090", // Slate Gray
+    "#8B4513", // Saddle Brown
+    "#4b064b", // Dark Magenta
+    "#B8860B", // Dark Goldenrod
+    "#CD853F", // Peru
+    "#8B0000", // Dark Red
+    "#006400", // Dark Green
+    "#191970", // Midnight Blue
+    "#8B6914", // Dark Goldenrod
+    "#8B7355", // Brown
+    "#696969", // Dim Gray
+    "#2F4F4F", // Dark Slate Gray
+    "#654321", // Dark Brown
+    "#708090", // Slate Gray
+  ];
+
+  return neutralColors.slice(0, numValues);
+};
+
 function App() {
   const [gridConfig, setGridConfig] = useState<GridConfig>({
     rows: 19,
@@ -27,6 +54,8 @@ function App() {
   });
   const [gridData, setGridData] = useState<string[][]>([]);
   const [isGenerated, setIsGenerated] = useState(false);
+  const [colors, setColors] = useState<{ [key: string]: string }>({});
+  const [hoveredValue, setHoveredValue] = useState<string | null>(null);
 
   const generateGrid = () => {
     const { rows, cols, numValues } = gridConfig;
@@ -37,6 +66,16 @@ function App() {
       { length: numValues },
       (_, i) => String.fromCharCode(97 + i) // ASCII 97 = 'a'
     );
+
+    // Initialize colors if not already set
+    if (Object.keys(colors).length === 0) {
+      const defaultColors = getDefaultColors(numValues);
+      const newColors: { [key: string]: string } = {};
+      values.forEach((value, index) => {
+        newColors[value] = defaultColors[index];
+      });
+      setColors(newColors);
+    }
 
     // Calculate distribution
     const baseCount = Math.floor(totalCells / numValues);
@@ -68,6 +107,13 @@ function App() {
     setIsGenerated(true);
   };
 
+  const updateColor = (value: string, newColor: string) => {
+    setColors((prev) => ({
+      ...prev,
+      [value]: newColor,
+    }));
+  };
+
   const printGrid = () => {
     window.print();
   };
@@ -81,6 +127,32 @@ function App() {
       });
     });
     return counts;
+  };
+
+  // Helper function to get cell style with hover effect
+  const getCellStyle = (cellValue: string) => {
+    const baseColor = colors[cellValue] || "#ccc";
+    const isHovered = hoveredValue === cellValue;
+    const isOtherHovered = hoveredValue && hoveredValue !== cellValue;
+
+    let backgroundColor = baseColor;
+    let opacity = 1;
+
+    if (isHovered) {
+      // Brighten the hovered value
+      backgroundColor = baseColor;
+      opacity = 1;
+    } else if (isOtherHovered) {
+      // Dim other values when one is hovered
+      opacity = 0.3;
+    }
+
+    return {
+      backgroundColor,
+      color: baseColor ? "#fff" : "#000",
+      opacity,
+      transition: "opacity 0.2s ease-in-out",
+    };
   };
 
   return (
@@ -216,17 +288,41 @@ function App() {
               </Heading>
               <Flex wrap="wrap" gap="3" className="print:gap-2">
                 {Object.entries(getValueCounts())
-                  .sort(([a], [b]) => b.localeCompare(a))
+                  .sort(([a], [b]) => a.localeCompare(b))
                   .map(([value, count]) => (
                     <Flex
                       key={value}
                       align="center"
                       gap="2"
-                      className="bg-gray-100 px-3 py-2 rounded-lg print:bg-white print:border print:border-gray-300"
+                      className="bg-gray-100 px-3 py-2 rounded-lg print:bg-white print:border print:border-gray-300 focus-within:outline-2 focus-within:outline-gray-900 "
+                      onMouseEnter={() => setHoveredValue(value)}
+                      onMouseLeave={() => setHoveredValue(null)}
+                      style={{
+                        opacity:
+                          hoveredValue && hoveredValue !== value ? 0.3 : 1,
+                        transition: "opacity 0.2s ease-in-out",
+                      }}
                     >
-                      <Box className="w-6 h-6 flex items-center justify-center bg-white border border-gray-300 rounded font-bold text-sm print:w-4 print:h-4 print:text-xs">
-                        {value.toUpperCase()}
-                      </Box>
+                      <div className="relative">
+                        <Flex
+                          justify="center"
+                          align="center"
+                          className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded font-bold text-sm print:w-4 print:h-4 print:text-xs pointer-events-none"
+                          style={{
+                            backgroundColor: colors[value] || "#ccc",
+                            color: colors[value] ? "#fff" : "#000",
+                          }}
+                        >
+                          {value.toUpperCase()}
+                        </Flex>
+                        <input
+                          type="color"
+                          value={colors[value] || "#ccc"}
+                          onChange={(e) => updateColor(value, e.target.value)}
+                          className="absolute top-0 left-0 w-6 h-6 rounded cursor-pointer print:hidden opacity-0"
+                          title={`Change color for ${value.toUpperCase()}`}
+                        />
+                      </div>
                       <Text size="2" weight="bold" className="print:text-xs">
                         {count}
                       </Text>
@@ -249,7 +345,10 @@ function App() {
                       justify="center"
                       align="center"
                       key={`${rowIndex}-${colIndex}`}
-                      className="aspect-square min-w-8 box-border border-1 border-gray-800 text-sm font-bold bg-white text-gray-800 font-mono rounded-lg print:w-6 print:h-6 print:text-xs print:border-black print:text-black uppercase"
+                      className="aspect-square min-w-8 box-border border-1 border-gray-800 text-sm font-bold font-mono rounded-lg print:w-6 print:h-6 print:text-xs print:border-black print:text-black uppercase cursor-pointer"
+                      style={getCellStyle(cell)}
+                      onMouseEnter={() => setHoveredValue(cell)}
+                      onMouseLeave={() => setHoveredValue(null)}
                     >
                       {cell}
                     </Flex>
