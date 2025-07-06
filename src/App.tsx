@@ -13,6 +13,7 @@ import {
   Grid,
   Checkbox,
 } from "@radix-ui/themes";
+import html2canvas from "html2canvas-pro";
 
 interface GridConfig {
   rows: number;
@@ -295,8 +296,21 @@ function App() {
     }));
   };
 
-  const printGrid = () => {
-    window.print();
+  const captureGrid = () => {
+    const grid = document.querySelector("#pattern-grid") as HTMLElement;
+    if (grid) {
+      html2canvas(grid).then((canvas) => {
+        // Convert canvas to data URL
+        const image = canvas.toDataURL("image/png");
+        // Create a temporary link element
+        const link = document.createElement("a");
+        link.href = image;
+        link.download = "crochet-pattern.png";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+    }
   };
 
   // Calculate count of each value in the grid
@@ -344,7 +358,7 @@ function App() {
           mb="6"
           className="text-left sm:text-center print:hidden"
         >
-          Pattern Mapper
+          Crafting Color Mapper
         </Heading>
 
         <Box className="bg-gray-50 p-6 rounded-lg mb-6 print:!hidden">
@@ -434,12 +448,12 @@ function App() {
             {isGenerated && (
               <>
                 <Button
-                  onClick={printGrid}
+                  onClick={captureGrid}
                   size="3"
                   variant="outline"
                   color="purple"
                 >
-                  Print Grid
+                  Screenshot
                 </Button>
                 <Button
                   onClick={saveCurrentConfiguration}
@@ -568,11 +582,17 @@ function App() {
 
             <Box className="overflow-x-auto print:overflow-visible">
               <div
-                className="grid gap-1 sm:gap-3 p-2 sm:p-4 border-1 min-w-min w-fit border-gray-800 box-border bg-white print:border-black print:gap-0 rounded-lg"
-                style={{
-                  gridTemplateColumns: `repeat(${gridConfig.cols}, minmax(14px, 1fr))`,
-                  gridTemplateRows: `repeat(${gridConfig.rows}, minmax(14px, 1fr))`,
-                }}
+                className={
+                  "grid gap-1 sm:gap-3 p-2 sm:p-4 border-1 min-w-min w-fit border-gray-800 box-border bg-white print:border-black print:gap-0 rounded-lg " +
+                  "grid-cols-[repeat(var(--color-grid-cols),minmax(14px,1fr))] sm:grid-cols-[repeat(var(--color-grid-cols),minmax(16px,1fr))] md:grid-cols-[repeat(var(--color-grid-cols),minmax(24px,1fr))]"
+                }
+                id="pattern-grid"
+                style={
+                  {
+                    "--color-grid-cols": gridConfig.cols,
+                    "--color-grid-rows": gridConfig.rows,
+                  } as React.CSSProperties
+                }
               >
                 {gridData.map((row, rowIndex) =>
                   row.map((cell, colIndex) => (
@@ -580,12 +600,12 @@ function App() {
                       justify="center"
                       align="center"
                       key={`${rowIndex}-${colIndex}`}
-                      className="aspect-square min-w-3 sm:min-w-4 md:min-w-8 text-xs leading-0 sm:text-sm font-bold font-mono rounded-sm sm:rounded-full print:rounded-none print:border-black print:border-1  print:text-black uppercase cursor-pointer"
+                      className="aspect-square min-w-3 sm:min-w-6 md:min-w-8 text-xs leading-0 sm:text-sm font-bold font-mono rounded-sm sm:rounded-full print:rounded-none print:border-black print:border-1  print:text-black uppercase cursor-pointer"
                       style={getCellStyle(cell)}
                       onMouseEnter={() => setHoveredValue(cell)}
                       onMouseLeave={() => setHoveredValue(null)}
                     >
-                      {cell}
+                      <span data-html2canvas-ignore>{cell}</span>
                     </Flex>
                   ))
                 )}
