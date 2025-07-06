@@ -250,24 +250,18 @@ function App() {
   return (
     <Theme>
       <Container size="4" className="max-w-6xl mx-auto p-5">
-        <Heading size="8" className="mb-6 text-center">
-          Crochet Pattern Mapper
+        <Heading size="8" mb="6" className="text-left sm:text-center">
+          Pattern Mapper
         </Heading>
 
         <Box className="bg-gray-50 p-6 rounded-lg mb-6">
-          <Heading size="5" className="mb-4">
+          <Heading size="5" mb="4">
             Grid Configuration
           </Heading>
 
           <Grid columns="3" gap="3" className="mb-6">
             <Box>
-              <Text
-                as="label"
-                htmlFor="rows"
-                size="2"
-                weight="bold"
-                className="block mb-2"
-              >
+              <Text as="label" htmlFor="rows" size="2" weight="bold" mb="2">
                 Rows (N)
               </Text>
               <TextField.Root
@@ -277,7 +271,7 @@ function App() {
                 onChange={(e) =>
                   setGridConfig((prev) => ({
                     ...prev,
-                    rows: parseInt(e.target.value) || 0,
+                    rows: parseInt(e.target.value),
                   }))
                 }
                 min="1"
@@ -287,13 +281,7 @@ function App() {
             </Box>
 
             <Box>
-              <Text
-                as="label"
-                htmlFor="cols"
-                size="2"
-                weight="bold"
-                className="block mb-2"
-              >
+              <Text as="label" htmlFor="cols" size="2" weight="bold" mb="2">
                 Columns (M)
               </Text>
               <TextField.Root
@@ -303,7 +291,7 @@ function App() {
                 onChange={(e) =>
                   setGridConfig((prev) => ({
                     ...prev,
-                    cols: parseInt(e.target.value) || 0,
+                    cols: parseInt(e.target.value),
                   }))
                 }
                 min="1"
@@ -313,23 +301,17 @@ function App() {
             </Box>
 
             <Box>
-              <Text
-                as="label"
-                htmlFor="numValues"
-                size="2"
-                weight="bold"
-                className="block mb-2"
-              >
-                Number of Values (O)
+              <Text as="label" htmlFor="colors" size="2" weight="bold" mb="2">
+                Colors
               </Text>
               <TextField.Root
-                id="numValues"
+                id="colors"
                 type="number"
                 value={gridConfig.numValues}
                 onChange={(e) =>
                   setGridConfig((prev) => ({
                     ...prev,
-                    numValues: parseInt(e.target.value) || 0,
+                    numValues: parseInt(e.target.value),
                   }))
                 }
                 min="1"
@@ -339,7 +321,7 @@ function App() {
             </Box>
           </Grid>
 
-          <Flex gap="3" className="mb-4">
+          <Flex gap="3">
             <Button
               onClick={generateGrid}
               size="3"
@@ -368,14 +350,17 @@ function App() {
               Generated Pattern Grid
             </Heading>
             <Text size="2" color="gray" className="mb-6 print:hidden">
-              Grid size: {gridConfig.rows} × {gridConfig.cols} | Values:{" "}
-              {gridConfig.numValues} (a-
-              {String.fromCharCode(96 + gridConfig.numValues)})
+              Grid size: {gridConfig.rows || 0} × {gridConfig.cols || 0} |
+              Colors:{" "}
+              <span className="uppercase">
+                {gridConfig.numValues} (a-
+                {String.fromCharCode(96 + gridConfig.numValues)})
+              </span>
             </Text>
 
             {/* Value Legend */}
             <Box className="mb-6 mt-2 print:mb-4">
-              <Heading size="4" className="mb-3 print:text-sm">
+              <Heading size="4" className="print:text-sm" mb="2">
                 Distribution
               </Heading>
               <Flex wrap="wrap" gap="3" className="print:gap-2">
@@ -425,7 +410,7 @@ function App() {
 
             <Box className="overflow-x-auto print:overflow-visible">
               <div
-                className="grid gap-2 p-2 border-1 min-w-min w-fit border-gray-800 box-border bg-white print:border-black rounded-lg"
+                className="grid gap-3 p-4 border-1 min-w-min w-fit border-gray-800 box-border bg-white print:border-black rounded-lg"
                 style={{
                   gridTemplateColumns: `repeat(${gridConfig.cols}, minmax(32px, 1fr))`,
                   gridTemplateRows: `repeat(${gridConfig.rows}, minmax(32px, 1fr))`,
@@ -437,7 +422,7 @@ function App() {
                       justify="center"
                       align="center"
                       key={`${rowIndex}-${colIndex}`}
-                      className="aspect-square min-w-8 box-border border-1 border-gray-800 text-sm font-bold font-mono rounded-lg print:w-6 print:h-6 print:text-xs print:border-black print:text-black uppercase cursor-pointer"
+                      className="aspect-square min-w-8 text-sm font-bold font-mono rounded-xl print:w-6 print:h-6 print:text-xs print:border-black print:text-black uppercase cursor-pointer"
                       style={getCellStyle(cell)}
                       onMouseEnter={() => setHoveredValue(cell)}
                       onMouseLeave={() => setHoveredValue(null)}
