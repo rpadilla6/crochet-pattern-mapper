@@ -538,7 +538,7 @@ function App() {
               <Flex wrap="wrap" gap="3" className="print:gap-2">
                 {Object.entries(getValueCounts())
                   .sort(([a], [b]) => a.localeCompare(b))
-                  .map(([value, count]) => (
+                  .map(([value]) => (
                     <Flex
                       key={value}
                       align="center"
@@ -572,8 +572,17 @@ function App() {
                           title={`Change color for ${value}`}
                         />
                       </div>
-                      <Text size="2" weight="bold" className="print:text-xs">
-                        {count}
+                      <Text
+                        size="2"
+                        weight="bold"
+                        className="print:text-xs flex justify-center w-min"
+                      >
+                        {/* Simple text input in order to name the color */}
+                        <input
+                          type="text"
+                          title="Color Name"
+                          placeholder="Color Name"
+                        />
                       </Text>
                     </Flex>
                   ))}
