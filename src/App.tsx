@@ -543,7 +543,7 @@ function App() {
                       key={value}
                       align="center"
                       gap="2"
-                      className="bg-gray-100 px-3 py-2 rounded-lg print:bg-white print:border print:border-gray-300 focus-within:outline-2 focus-within:outline-gray-900 "
+                      className="bg-gray-100 px-3 py-2 rounded-lg print:bg-white print:border print:border-black focus-within:outline-2 focus-within:outline-gray-900 "
                       onMouseEnter={() => setHoveredValue(value)}
                       onMouseLeave={() => setHoveredValue(null)}
                       style={{
@@ -556,7 +556,7 @@ function App() {
                         <Flex
                           justify="center"
                           align="center"
-                          className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded font-bold text-sm print:w-4 print:h-4 print:text-xs pointer-events-none uppercase"
+                          className="w-6 h-6 flex items-center justify-center border border-gray-300 rounded font-bold text-sm print:w-4 print:h-4 print:text-xs pointer-events-none uppercase print:border-black print:!text-black"
                           style={{
                             backgroundColor: colors[value] || "#ccc",
                             color: colors[value] ? "#fff" : "#000",
@@ -566,7 +566,7 @@ function App() {
                         </Flex>
                         <input
                           type="color"
-                          value={colors[value] || "#ccc"}
+                          value={colors[value] || "#fff"}
                           onChange={(e) => updateColor(value, e.target.value)}
                           className="absolute top-0 left-0 w-6 h-6 rounded cursor-pointer print:hidden opacity-0"
                           title={`Change color for ${value}`}
@@ -600,7 +600,7 @@ function App() {
                       justify="center"
                       align="center"
                       key={`${rowIndex}-${colIndex}`}
-                      className="aspect-square min-w-3 sm:min-w-6 md:min-w-8 text-xs leading-0 sm:text-sm font-bold font-mono rounded-sm sm:rounded-full print:rounded-none print:border-black print:border-1  print:text-black uppercase cursor-pointer"
+                      className="aspect-square min-w-3 sm:min-w-6 md:min-w-8 text-xs leading-0 sm:text-sm font-bold font-mono rounded-sm sm:rounded-full print:rounded-none print:border-black print:border-1  print:!text-black uppercase cursor-pointer"
                       style={getCellStyle(cell)}
                       onMouseEnter={() => setHoveredValue(cell)}
                       onMouseLeave={() => setHoveredValue(null)}
